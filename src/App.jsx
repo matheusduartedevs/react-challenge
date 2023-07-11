@@ -3,6 +3,7 @@ import './App.css'
 
 const App = () => {
   const [list, setList] = useState([])
+  const [undid, setUndid] = useState([])
 
   const handleClick = (event) => {
     const newDot = {
@@ -11,30 +12,52 @@ const App = () => {
     }
 
     setList((prev) => [...prev, newDot])
+    setUndid([])
   }
 
   const handleUndo = (event) => {
     event.stopPropagation()
+
+    if(list.length === 0 ) {
+      return
+    }
+
+    const lastItem = list[list.length - 1]
+    setUndid((prev) => [...prev, lastItem])
     
     setList((prev) => {
-      if(list.length === 0 ) {
-        return
-      }
-      
       const newArr = [...prev].slice(0, -1)
       return newArr
     })
   }
 
+  const handleRedo = (event) => {
+    event.stopPropagation()
+
+    const lastItem = undid[undid.length - 1]
+
+    if(undid.length === 0 ) {
+      return
+    }
+
+    setUndid((prev) => {
+      const newArr = [...prev].slice(0, -1)
+      return newArr
+    }) 
+    setList((prev) => [...prev, lastItem])
+  }
+
   return (
     <div id='page' onClick={handleClick}>
       <button onClick={handleUndo}>Desfazer</button>
-      {list.map((item => (
-        <span className="dot"
+      <button onClick={handleRedo}>Refazer</button>
+      {list.map((item, index) => (
+        <span 
+          key={index}
+          className="dot"
           style={{ left: item.clientX, top: item.clientY }}
         />
-      )))}
-
+      ))}
     </div>
   )
 }
